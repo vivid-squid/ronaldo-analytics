@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: clean_fct_shots
+    description: "Cleaned, deduplicated shot-event fact table. Grain: one row per (match_id, shot_id_number)."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['match_id', 'shot_id_number']
+    columns:
+      - name: match_id
+        tests: [not_null]
+      - name: shot_id_number
+        tests: [not_null]
+      - name: team_id
+        tests: [not_null]
+      - name: home_away
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['HOME', 'AWAY', 'UNKNOWN']
+
+  - name: clean_rejected_shots
+    description: "Rows excluded from clean_fct_shots with reject reasons (e.g., null shot_id_number)."
+    columns:
+      - name: reject_reason
+        tests: [not_null]

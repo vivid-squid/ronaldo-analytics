@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: raw
+    database: RONALDO_DB
+    schema: RAW
+    tables:
+      - name: shots_ronaldo_raw
+        identifier: SHOTS_RONALDO_RAW

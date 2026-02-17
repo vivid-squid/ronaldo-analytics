@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: dim_team
+    columns:
+      - name: team_id
+        tests: [not_null, unique]
+
+  - name: dim_match
+    columns:
+      - name: match_id
+        tests: [not_null, unique]
+
+  - name: fact_shots
+    columns:
+      - name: match_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_match')
+                field: match_id
+
+      - name: team_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_team')
+                field: team_id
+
+      - name: home_away
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['HOME', 'AWAY', 'UNKNOWN']
