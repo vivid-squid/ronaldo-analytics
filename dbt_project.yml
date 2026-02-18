@@ -34,7 +34,7 @@ models:
     +materialized: view
 
     staging:
-      +schema: "{{ 'DBT_DEV' if target.name == 'dev' else 'CLEAN' }}"
+      +schema: "{{ 'DBT_DEV' if target.name == 'dev' else 'STAGING' }}"
       +materialized: view
 
     clean:

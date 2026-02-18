@@ -1,0 +1,25 @@
+ronaldo_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "CBEMZIX-MU79737"
+      user: "BARATH"
+      password: "yDfJcVmEmxzN9JN"
+      role: "ACCOUNTADMIN"
+      warehouse: "COMPUTE_WH"
+      database: "RONALDO_DB"
+      schema: "DBT_DEV"
+      threads: 4
+
+    prod:
+      type: snowflake
+      account: "CBEMZIX-MU79737"
+      user: "BARATH"
+      password: "yDfJcVmEmxzN9JN"
+      role: "ACCOUNTADMIN"
+      warehouse: "COMPUTE_WH"
+      database: "RONALDO_DB"
+      schema: "ANALYTICS"   # default, but we’ll override by folder in dbt_project.yml
+      threads: 4
+
