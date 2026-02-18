@@ -1,5 +1,6 @@
-trigger:
-  enabled: false
+trigger: none
+pr: none
+
 variables:
 - name: DBT_PROFILES_DIR
   value: $(Pipeline.Workspace)
