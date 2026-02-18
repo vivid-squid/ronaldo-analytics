@@ -24,4 +24,4 @@ models:
     description: "Rows excluded from clean_fct_shots with reject reasons (e.g., null shot_id_number)."
     columns:
       - name: reject_reason
-        tests: [not_null]
+        tests: ['not_null','unique']
