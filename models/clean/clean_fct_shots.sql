@@ -7,10 +7,10 @@
 with src as (
   select *
   from {{ ref('stg_shots_ronaldo_raw') }}
-  {% if is_incremental() %}
+  {% if is_incremental() and var("ingestion_batch_id", "") != "" %}
     where ingestion_batch_id = '{{ var("ingestion_batch_id") }}'
   {% endif %}
-)
+),
 
 keyed as (
     select *
@@ -23,6 +23,8 @@ prepared as (
     select
         match_id::number(38,0) as match_id,
         shot_id_number::number(38,0) as shot_id_number,
+
+        {{ dbt_utils.generate_surrogate_key(['match_id', 'shot_id_number']) }} as shot_id,
 
         match_event_id::number(38,0) as match_event_id,
         team_id::number(38,0) as team_id,
