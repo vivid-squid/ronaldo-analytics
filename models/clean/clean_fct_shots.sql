@@ -24,6 +24,8 @@ prepared as (
         match_id::number(38,0) as match_id,
         shot_id_number::number(38,0) as shot_id_number,
 
+        {{ dbt_utils.generate_surrogate_key(['match_id', 'shot_id_number']) }} as shot_id,
+
         match_event_id::number(38,0) as match_event_id,
         team_id::number(38,0) as team_id,
 
