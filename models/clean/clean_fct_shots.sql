@@ -10,7 +10,7 @@ with src as (
   {% if is_incremental() %}
     where ingestion_batch_id = '{{ var("ingestion_batch_id") }}'
   {% endif %}
-)
+),
 
 keyed as (
     select *
