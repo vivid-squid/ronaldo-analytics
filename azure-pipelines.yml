@@ -1,0 +1,80 @@
+trigger:
+  enabled: false
+variables:
+- name: DBT_PROFILES_DIR
+  value: $(Pipeline.Workspace)
+stages:
+- stage: __default
+  jobs:
+  - job: Job
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: 6d15af64-176c-496d-b583-fd2ae21d4df4@1
+      inputs:
+        repository: self
+        clean: true
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: "3.11"
+    - task: CmdLine@2
+      displayName: "Install dbt"
+      inputs:
+        script: |
+          python -m pip install --upgrade pip
+          pip install dbt-snowflake==1.11.2
+    - task: CmdLine@2
+      displayName: "Create dbt profiles.yml"
+      env:
+        SNOWFLAKE_USER: $(SNOWFLAKE_USER)
+        SNOWFLAKE_PASSWORD: $(SNOWFLAKE_PASSWORD)
+      inputs:
+        script: |
+          mkdir -p "$(DBT_PROFILES_DIR)/.dbt"
+
+          cat > "$(DBT_PROFILES_DIR)/.dbt/profiles.yml" << 'EOF'
+          ronaldo_analytics:
+            target: dev
+            outputs:
+              dev:
+                type: snowflake
+                account: CBEMZIX-MU79737
+                user: ${SNOWFLAKE_USER}
+                password: ${SNOWFLAKE_PASSWORD}
+                role: ACCOUNTADMIN
+                warehouse: COMPUTE_WH
+                database: RONALDO_DB
+                schema: DBT_DEV
+                threads: 4
+
+              prod:
+                type: snowflake
+                account: CBEMZIX-MU79737
+                user: ${SNOWFLAKE_USER}
+                password: ${SNOWFLAKE_PASSWORD}
+                role: ACCOUNTADMIN
+                warehouse: COMPUTE_WH
+                database: RONALDO_DB
+                schema: ANALYTICS
+                threads: 4
+          EOF
+
+          echo "profiles.yml created at $(DBT_PROFILES_DIR)/.dbt/profiles.yml"
+    - task: CmdLine@2
+      displayName: "dbt deps + debug (DEV)"
+      inputs:
+        script: |
+          dbt --version
+          dbt deps
+          dbt debug --profiles-dir "$(DBT_PROFILES_DIR)/.dbt" --target dev
+    - task: CmdLine@2
+      displayName: "dbt build (DEV)"
+      inputs:
+        script: |
+          dbt build --profiles-dir "$(DBT_PROFILES_DIR)/.dbt" --target dev
+    - task: CmdLine@2
+      displayName: "Promote to PROD"
+      condition: succeeded()
+      inputs:
+        script: |
+          dbt build --profiles-dir "$(DBT_PROFILES_DIR)/.dbt" --target prod
