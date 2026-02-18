@@ -1,9 +1,16 @@
-{{ config(materialized='table') }}
+{{ config(
+    materialized='incremental',
+    incremental_strategy='merge',
+    unique_key='SHOT_ID'
+) }}
 
 with src as (
-    select *
-    from {{ ref('stg_shots_ronaldo_raw') }}
-),
+  select *
+  from {{ ref('stg_shots_ronaldo_raw') }}
+  {% if is_incremental() %}
+    where ingestion_batch_id = '{{ var("ingestion_batch_id") }}'
+  {% endif %}
+)
 
 keyed as (
     select *

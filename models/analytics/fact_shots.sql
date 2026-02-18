@@ -1,4 +1,17 @@
-{{ config(materialized='view') }}
+{{ config(
+    materialized='incremental',
+    incremental_strategy='merge',
+    unique_key='SHOT_ID'
+) }}
+
+with src as (
+    select *
+    from {{ ref('clean_fct_shots') }}
+    {% if is_incremental() %}
+      -- only process new batch
+      where ingestion_batch_id = '{{ var("ingestion_batch_id") }}'
+    {% endif %}
+)
 
 select
   -- keys
