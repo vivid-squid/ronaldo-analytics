@@ -7,7 +7,7 @@
 with src as (
   select *
   from {{ ref('stg_shots_ronaldo_raw') }}
-  {% if is_incremental() %}
+  {% if is_incremental() and var("ingestion_batch_id", "") != "" %}
     where ingestion_batch_id = '{{ var("ingestion_batch_id") }}'
   {% endif %}
 ),
