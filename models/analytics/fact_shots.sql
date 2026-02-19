@@ -11,7 +11,7 @@ with src as (
       -- only process new batch
       where ingestion_batch_id = '{{ var("ingestion_batch_id") }}'
     {% endif %}
-)
+),
 
 select
   -- keys
