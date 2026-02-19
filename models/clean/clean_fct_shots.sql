@@ -35,10 +35,12 @@ prepared as (
         end as team_name,
 
         case
-            when upper(trim(home_away)) in ('HOME', 'H') then 'HOME'
-            when upper(trim(home_away)) in ('AWAY', 'A') then 'AWAY'
-            else 'UNKNOWN'
+          when nullif(trim(home_away), '') is null then 'UNKNOWN'
+          when upper(trim(home_away)) like '% VS.%' then 'HOME'
+          when upper(trim(home_away)) like '% @ %'  then 'AWAY'
+          else 'UNKNOWN'
         end as home_away,
+
 
         try_to_date(date_of_game) as date_of_game,
 
