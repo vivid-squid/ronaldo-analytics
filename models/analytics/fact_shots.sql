@@ -8,12 +8,14 @@ with src as (
     select *
     from {{ ref('clean_fct_shots') }}
     {% if is_incremental() %}
-      -- only process new batch
       where ingestion_batch_id = '{{ var("ingestion_batch_id") }}'
     {% endif %}
 ),
 
 select
+  -- technical key for merge + downstream joins
+  shot_id,
+
   -- keys
   match_id,
   shot_id_number,
@@ -43,4 +45,4 @@ select
   source_file_name,
   ingested_at_utc
 
-from {{ ref('clean_fct_shots') }}
+from src
