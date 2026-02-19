@@ -33,10 +33,10 @@ models:
               arguments:
                 values: ['HOME', 'AWAY', 'UNKNOWN']
 
-
   - name: clean_rejected_shots
-    description: "Rows excluded from clean_fct_shots with reject reasons (e.g., null shot_id_number)."
     columns:
+      - name: reject_id
+        tests: [not_null, unique]
       - name: reject_reason
-        tests:
-          - not_null
+        tests: [not_null]
+
