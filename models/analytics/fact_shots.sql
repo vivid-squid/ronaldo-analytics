@@ -1,7 +1,8 @@
-{{ config(
+    {{ config(
     materialized='incremental',
     incremental_strategy='merge',
-    unique_key='SHOT_ID'
+    unique_key='SHOT_ID',
+    on_schema_change='sync_all_columns'
 ) }}
 
 with src as (
