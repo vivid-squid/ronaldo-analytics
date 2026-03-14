@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Ronaldo Analytics — Case Study</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reset.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reveal.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Lora:ital,wght@0,400;0,600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --gold:#c9a84c; --gdim:rgba(201,168,76,.18); --gbg:rgba(201,168,76,.05);
+  --red:#e63946; --green:#2a9d5c; --blue:#4a9eca; --purple:#9b72cf;
+  --bg:#070707; --bg2:#0e0e0e; --bg3:#161616; --w:#f0ebe0; --m:#6b6b60; --m2:#9a9a8e;
+}
+.reveal-viewport{background:var(--bg);}
+.reveal{font-family:"DM Mono",monospace;font-size:18px;color:var(--w);}
+.reveal .slides section{text-align:left;padding:0 54px;display:flex!important;flex-direction:column;justify-content:center;height:100%;box-sizing:border-box;}
+
+/* TYPE */
+.reveal h1{font-family:"Bebas Neue",sans-serif;font-size:5.1em;line-height:.9;letter-spacing:3px;color:var(--w);text-transform:none;margin-bottom:.15em;}
+.reveal h2{font-family:"Bebas Neue",sans-serif;font-size:2.8em;letter-spacing:2px;color:var(--w);text-transform:none;line-height:1;border-bottom:1px solid var(--gdim);padding-bottom:.15em;margin-bottom:.22em;}
+.reveal h3{font-family:"Lora",serif;font-size:1.05em;font-weight:600;color:var(--gold);text-transform:none;margin-bottom:.18em;}
+.reveal p{font-size:.85em;line-height:1.8;color:rgba(240,235,224,.7);margin-bottom:.3em;}
+.reveal strong{color:var(--gold);font-weight:500;}
+.reveal em{color:var(--gold);font-style:italic;}
+.reveal code{font-family:"DM Mono",monospace;font-size:.8em;color:var(--gold);background:rgba(201,168,76,.09);padding:1px 6px;}
+.reveal ul{font-size:.85em;line-height:1.9;color:rgba(240,235,224,.72);margin-left:1em;}
+.reveal ul li{margin-bottom:.05em;}
+.reveal ul li::marker{color:var(--gold);}
+.reveal ul ul{font-size:.92em;margin-top:.05em;color:rgba(240,235,224,.5);margin-left:1em;}
+.reveal ul ul li::marker{color:var(--m);}
+.reveal a{color:var(--gold);}
+.reveal .progress span{background:var(--gold);}
+.reveal .slide-number{font-family:"DM Mono",monospace;font-size:.66em;color:var(--m);background:transparent;}
+.reveal .controls button{color:var(--gold);}
+
+/* UTILS */
+.lbl{font-size:.56em;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:.38em;display:flex;align-items:center;gap:9px;}
+.lbl::before{content:"";display:block;width:22px;height:1px;background:var(--gold);flex-shrink:0;}
+.ghost{font-family:"Bebas Neue",sans-serif;font-size:12em;color:rgba(201,168,76,.027);position:absolute;right:-4px;bottom:-12px;line-height:1;pointer-events:none;user-select:none;}
+.tag{display:inline-block;font-size:.54em;letter-spacing:3px;text-transform:uppercase;color:var(--gold);background:var(--gbg);border:1px solid var(--gdim);padding:2px 8px;margin-bottom:6px;}
+.ann{display:inline-block;background:var(--gold);color:#000;font-size:.54em;font-family:"Bebas Neue",sans-serif;letter-spacing:2px;padding:2px 9px;margin-bottom:5px;}
+.note{background:var(--gbg);border-left:3px solid var(--gold);padding:8px 13px;margin-top:9px;font-size:.78em;color:rgba(240,235,224,.62);line-height:1.65;}
+.warn{background:rgba(230,57,70,.06);border-left:3px solid var(--red);padding:8px 13px;margin-top:8px;font-size:.78em;color:rgba(240,235,224,.62);line-height:1.65;}
+.good{background:rgba(42,157,92,.06);border-left:3px solid var(--green);padding:8px 13px;margin-top:8px;font-size:.78em;color:rgba(240,235,224,.62);line-height:1.65;}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:9px;}
+.g13{display:grid;grid-template-columns:1fr 3fr;gap:14px;align-items:start;}
+.g31{display:grid;grid-template-columns:3fr 1fr;gap:14px;align-items:start;}
+
+/* CARD */
+.card{background:var(--bg3);border:1px solid rgba(255,255,255,.05);padding:15px 14px;}
+.cg{border-top:2px solid var(--gold);}
+.cr{border-top:2px solid var(--red);}
+.cgr{border-top:2px solid var(--green);}
+.cb{border-top:2px solid var(--blue);}
+.cp{border-top:2px solid var(--purple);}
+.cl{border-left:3px solid var(--gold);padding-left:13px;}
+.card h3{margin-top:0;}
+.card p{font-size:.82em;margin-bottom:0;}
+
+/* STAT */
+.sv{font-family:"Bebas Neue",sans-serif;font-size:3.0em;color:var(--gold);line-height:1;letter-spacing:1px;}
+.sv.r{color:var(--red);} .sv.g{color:var(--green);} .sv.w{color:var(--w);} .sv.b{color:var(--blue);}
+.sl{font-size:.56em;letter-spacing:3px;text-transform:uppercase;color:var(--m);margin-top:1px;display:block;}
+
+/* KPI ROW */
+.krow{display:flex;gap:0;margin:13px 0;border-top:1px solid var(--gdim);border-bottom:1px solid var(--gdim);padding:12px 0;}
+.ki{flex:1;text-align:center;border-right:1px solid var(--gdim);padding:0 5px;}
+.ki:last-child{border-right:none;}
+
+/* PILLS */
+.pill{font-size:.82em;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border:1px solid var(--gdim);color:var(--gold);}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px;}
+
+/* FLOW */
+.flow{display:flex;align-items:stretch;margin-top:14px;}
+.fn{flex:1;background:var(--bg3);border:1px solid var(--gdim);padding:12px 8px;text-align:center;font-size:.68em;}
+.fi{font-size:1.6em;display:block;margin-bottom:3px;}
+.fname{font-family:"Bebas Neue",sans-serif;font-size:1.25em;letter-spacing:2px;color:var(--gold);}
+.fdesc{color:var(--m);font-size:.8em;line-height:1.3;margin-top:2px;}
+.farr{display:flex;align-items:center;padding:0 3px;color:var(--gold);font-size:.9em;opacity:.4;}
+
+/* 4-SCHEMA STRIP */
+.schema-strip{display:flex;gap:2px;margin-top:12px;background:var(--gdim);}
+.sc{flex:1;background:var(--bg2);padding:15px 12px;}
+.sc.hi{background:var(--bg3);}
+.sc-tag{font-size:.52em;letter-spacing:3px;text-transform:uppercase;color:var(--gold);background:var(--gbg);border:1px solid var(--gdim);display:inline-block;padding:2px 7px;margin-bottom:6px;}
+.sc-name{font-family:"Bebas Neue",sans-serif;font-size:1.5em;letter-spacing:2px;color:var(--w);margin-bottom:4px;}
+.sc-sub{font-size:.68em;color:var(--m2);line-height:1.45;margin-bottom:6px;}
+.sc-list{list-style:none;margin:0;padding:0;}
+.sc-list li{font-size:.68em;color:var(--m);padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:5px;}
+.sc-list li::before{display:none;}
+.sc-arr{display:flex;align-items:center;background:var(--bg);color:var(--gold);opacity:.35;font-size:1em;padding:0 2px;}
+
+/* DQ BAR */
+.dqtrack{height:3px;background:rgba(255,255,255,.07);margin-top:5px;overflow:hidden;}
+.dqr{height:100%;background:var(--red);}
+.dqg{height:100%;background:var(--green);}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:.78em;margin-top:10px;}
+.tbl th{font-family:"Bebas Neue",sans-serif;font-size:1.1em;letter-spacing:2px;color:var(--gold);text-align:left;padding:6px 10px;border-bottom:1px solid var(--gdim);font-weight:normal;}
+.tbl td{padding:5px 10px;border-bottom:1px solid rgba(255,255,255,.04);color:rgba(240,235,224,.7);vertical-align:top;}
+.tbl tr:hover td{background:rgba(201,168,76,.03);}
+.tbl .badge{display:inline-block;font-size:.85em;padding:1px 7px;border-radius:0;}
+.badge-g{background:rgba(42,157,92,.15);color:var(--green);border:1px solid rgba(42,157,92,.25);}
+.badge-r{background:rgba(230,57,70,.12);color:var(--red);border:1px solid rgba(230,57,70,.2);}
+.badge-y{background:rgba(201,168,76,.12);color:var(--gold);border:1px solid rgba(201,168,76,.2);}
+
+/* IMAGE SPLIT */
+.isplit{display:grid!important;grid-template-columns:1fr 1fr;height:100%;gap:0;padding:0!important;align-items:stretch;}
+.itext{display:flex;flex-direction:column;justify-content:center;padding:32px 24px 32px 52px;position:relative;}
+.iimg{background:var(--bg2);border-left:1px solid var(--gdim);display:flex;flex-direction:column;justify-content:center;padding:16px;}
+/* .iimg img{width:100%;display:block;border:1px solid var(--gdim);} */
+
+.iimg img{width:100%;display:block;border:1px solid var(--gdim);}
+
+.iimg-r{background:var(--bg2);border-right:1px solid var(--gdim);display:flex;flex-direction:column;justify-content:center;padding:16px;}
+/* .iimg-r img{width:100%;display:block;border:1px solid var(--gdim);} */
+.iimg-r img{width:100%;display:block;border:1px solid var(--gdim);}
+.icap{font-size:.44em;letter-spacing:2px;text-transform:uppercase;color:var(--m);margin-top:6px;text-align:center;}
+
+
+
+/* BG FX */
+.bgrid{position:absolute;inset:0;background-image:linear-gradient(rgba(201,168,76,.019) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,.019) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;}
+.bglr{position:absolute;top:0;right:0;bottom:0;width:55%;background:radial-gradient(ellipse at right center,rgba(201,168,76,.05) 0%,transparent 65%);pointer-events:none;}
+.bglb{position:absolute;bottom:0;left:0;right:0;height:55%;background:radial-gradient(ellipse at bottom center,rgba(201,168,76,.06) 0%,transparent 60%);pointer-events:none;}
+
+/* CLOSING */
+.cstats{display:flex;justify-content:center;gap:30px;margin-top:22px;border-top:1px solid var(--gdim);padding-top:18px;}
+.cs{text-align:center;}
+
+/* CHECK ROW */
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:.82em;color:rgba(240,235,224,.72);margin-bottom:.3em;line-height:1.6;}
+.chk .icon{flex-shrink:0;margin-top:.05em;}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides"><section data-background-color="#070707">
+  <div class="bgrid"></div><div class="bglr"></div>
+  <div class="ghost">Barath</div>
+  <div class="lbl">Case Study</div>
+  <h1>RONALDO<br/><span style="color:var(--gold)">ANALYTICS</span></h1>
+  <div class="krow">
+    <div class="ki"><div class="sv">29K</div><span class="sl">Shot Events</span></div>
+    <div class="ki"><div class="sv">10K</div><span class="sl">Goals</span></div>
+    <div class="ki"><div class="sv">35.45%</div><span class="sl">Conversion Rate</span></div>
+    <div class="ki"><div class="sv">33.72</div><span class="sl">Avg Shot Distance</span></div>
+    <div class="ki"><div class="sv">20yr</div><span class="sl">Career Span</span></div>
+  </div>
+  <div class="pills">
+    <span class="pill">Azure Data Factory</span>
+    <span class="pill">Snowflake</span>
+    <span class="pill">dbt Cloud</span>
+    <span class="pill">Power BI</span>
+    <span class="pill">Azure Pipelines CI/CD</span>
+    <span class="pill">GitHub</span>
+  </div>
+</section>
+<section data-background-color="#0e0e0e">
+  <div class="ghost">02</div>
+  <div class="lbl">Engineering Design</div>
+  <h2>MODERN <span style="color:var(--gold)">ELT ARCHITECTURE</span></h2>
+
+  <div class="flow">
+    <div class="fn"><span class="fi">📁</span><div class="fname">Local CSV</div><div class="fdesc">Source data<br/>1996–2016</div></div>
+    <div class="farr">→</div>
+    <div class="fn"><span class="fi">☁️</span><div class="fname">ADF</div><div class="fdesc">Orchestration<br/>&amp; ingestion</div></div>
+    <div class="farr">→</div>
+    <div class="fn"><span class="fi">❄️</span><div class="fname">Snowflake RAW</div><div class="fdesc">Exact copy<br/>never modified</div></div>
+    <div class="farr">→</div>
+    <div class="fn"><span class="fi">🔧</span><div class="fname">dbt</div><div class="fdesc">CLEAN +<br/>ANALYTICS</div></div>
+    <div class="farr">→</div>
+    <div class="fn"><span class="fi">📊</span><div class="fname">Power BI</div><div class="fdesc">ANALYTICS<br/>schema only</div></div>
+  </div>
+
+  <div class="g2" style="margin-top:12px;">
+    <table class="tbl">
+      <tr><th>Layer</th><th>Responsibility</th></tr>
+      <tr><td><strong>Azure Data Factory</strong></td><td>Controlled ingestion + monitoring</td></tr>
+      <tr><td><strong>Snowflake</strong></td><td>Storage + compute separation</td></tr>
+      <tr><td><strong>dbt</strong></td><td>Transformation &amp; data quality</td></tr>
+      <tr><td><strong>Power BI</strong></td><td>Business consumption only</td></tr>
+    </table>
+    <div>
+    <div class="card cr" style="margin-bottom:10px;">
+      <h4 style="font-size: 12px;">
+        Why NOT transform in Snowflake?
+      </h4>
+    </div>
+    </div>
+  </div>
+</section>
+<section data-background-color="#070707">
+  <div class="ghost">03</div>
+  <div class="lbl">Data Understanding</div>
+  <h2>DATA PROFILING <span style="color:var(--gold)">&amp; GRAIN</span></h2>
+
+  <div class="g3" style="margin-top:12px;">
+    <div class="card cg">
+      <h3>Dataset Grain</h3>
+      <ul>
+        <li><strong>1 row = 1 shot event</strong></li>
+        <li>Business keys: <code>match_id</code>, <code>shot_id</code></li>
+        <li>Composite key where shot_id absent</li>
+        <li>Granularity confirmed before modeling</li>
+      </ul>
+    </div>
+    <div class="card cgr">
+      <h3>✓ Included Fields</h3>
+      <ul>
+        <li><code>match_id</code> · <code>minute</code> · <code>second</code></li>
+        <li><code>is_goal</code> — outcome flag</li>
+        <li><code>shot_type</code> · <code>shot_power</code></li>
+        <li><code>shot_distance</code></li>
+        <li><code>competition_type</code> (league / knockout)</li>
+        <li><em>Analytically actionable fields only</em></li>
+      </ul>
+    </div>
+    <div class="card cr">
+      <h3>✗ Excluded Fields</h3>
+      <ul>
+        <li>Free-text commentary columns</li>
+        <li>Duplicate ingestion metadata</li>
+        <li>Columns with &gt;80% nulls</li>
+        <li>Non-analytic attributes</li>
+        <li><em>"Lean analytics layer" principle</em></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-top:11px;">
+
+  </div>
+</section>
+<section data-background-color="#0e0e0e">
+  <div class="ghost">04</div>
+  <div class="lbl">dbt Cloud · Layered Warehouse Design</div>
+  <h2>4-SCHEMA <span style="color:var(--gold)">MODEL DESIGN</span></h2>
+
+  <div class="schema-strip">
+    <div class="sc">
+      <div class="sc-tag">Schema 1</div>
+      <div class="sc-name">RAW</div>
+      <div class="sc-sub">Exact source mirror.<br/>Never modified.</div>
+    </div>
+    <div class="sc-arr">→</div>
+    <div class="sc hi">
+      <div class="sc-tag">Schema 2</div>
+      <div class="sc-name">STAGE</div>
+      <div class="sc-sub">Structure cleaned.<br/>No logic yet.</div>
+    </div>
+    <div class="sc-arr">→</div>
+    <div class="sc">
+      <div class="sc-tag">Schema 3</div>
+      <div class="sc-name">CLEAN</div>
+      <div class="sc-sub">Business logic.<br/>Conflicts resolved.</div>
+    </div>
+    <div class="sc-arr">→</div>
+    <div class="sc hi">
+      <div class="sc-tag">Schema 4</div>
+      <div class="sc-name">ANALYTICS</div>
+      <div class="sc-sub">Aggregated.<br/>Power BI-ready.</div>
+    </div>
+  </div>
+
+  <div class="g3" style="margin-top:11px;">
+    <div class="note" style="margin-top:0;">✔ <strong>Protect raw data</strong> — always reprocessable from source</div>
+    <div class="note" style="margin-top:0;">✔ <strong>Isolate cleaning logic</strong> — debug one layer at a time</div>
+    <div class="note" style="margin-top:0;">✔ <strong>Semantic discipline</strong> — Power BI hits ANALYTICS only, no business logic inside BI tool</div>
+  </div>
+</section>
+<section data-background-color="#070707">
+  <div class="ghost">05</div>
+  <div class="lbl">Data Quality — Production Thinking</div>
+  <h2>DQ ISSUES <span style="color:var(--gold)">FOUND &amp; HANDLED</span></h2>
+
+  <div class="g2" style="margin-top:10px;">
+    <div>
+      <div class="card cr">
+        <h3>Issues Identified</h3>
+        <ul>
+          <li>Duplicate shots across ingestion batches</li>
+          <li>Invalid minute/second combinations</li>
+          <li>Distance measurement inconsistencies (units)</li>
+          <li>Shot power scale conflicts</li>
+          <li>Null match references</li>
+          <li>Knockout flag ambiguity (~18.54% conflict rate)</li>
+        </ul>
+      </div>
+      <div class="g3" style="margin-top:10px;">
+        <div class="card cb" style="padding:12px;">
+          <div class="sv b" style="font-size:1.9em;">153,485</div>
+          <span class="sl">Total RAW Rows</span>
+        </div>
+        <div class="card cg" style="padding:12px;">
+          <div class="sv g" style="font-size:1.9em;">29,134</div>
+          <span class="sl">Clean Rows</span>
+        </div>
+        <div class="card cr" style="padding:12px;">
+          <div class="sv r" style="font-size:1.9em;">7,815</div>
+          <span class="sl">Null Key Rejected</span>
+        </div>
+      </div>
+      <!-- <div class="note" style="margin-top:8px;font-size:.62em;line-height:1.7;">
+        <strong>Why 29K clean rows?</strong> &nbsp;
+        153,485 RAW → minus 7,815 null <code>shot_id_number</code> rows = <strong>145,670 key-valid</strong>.
+        Each unique <code>(match_id, shot_id_number)</code> appears exactly <strong>5× in RAW</strong> (avg &amp; max = 5) — a systematic ingestion repeat across batches.
+        <code>QUALIFY ROW_NUMBER() = 1</code> deduplicates: 145,670 ÷ 5 = <strong>29,134 clean rows</strong>. No business data lost — pure structural deduplication.
+      </div> -->
+    </div>
+    <div>
+      <table class="tbl">
+        <tr><th>Issue</th><th>Handling Strategy</th></tr>
+        <tr><td>Duplicates</td><td><span class="badge badge-g">dbt incremental + unique key</span></td></tr>
+        <tr><td>Invalid minutes</td><td><span class="badge badge-y">Filtered in CLEAN layer</span></td></tr>
+        <tr><td>Distance outliers</td><td><span class="badge badge-y">Flagged, not removed</span></td></tr>
+        <tr><td>Nulls</td><td><span class="badge badge-g">dbt not_null tests</span></td></tr>
+        <tr><td>Referential issues</td><td><span class="badge badge-g">relationships tests</span></td></tr>
+        <tr><td>Knockout conflicts</td><td><span class="badge badge-y">Boolean flag column</span></td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+<section data-background-color="#0e0e0e">
+  <div class="ghost">06</div>
+  <div class="lbl">Production Engineering · Enterprise Thinking</div>
+  <h2>OBSERVABILITY <span style="color:var(--gold)">&amp; IDEMPOTENCY</span></h2>
+
+  <div class="g2" style="margin-top:12px;">
+    <div>
+      <div class="card cb">
+        <h3>Load Audit Table</h3>
+        <p style="font-size:.65em;color:var(--m);margin-bottom:8px;">Tracks every pipeline execution:</p>
+        <ul>
+          <li><code>pipeline_run_id</code></li>
+          <li><code>file_name</code></li>
+          <li><code>raw_row_count</code></li>
+          <li><code>clean_row_count</code></li>
+          <li><code>status</code> (pass / fail / partial)</li>
+        </ul>
+      </div>
+      <div class="card cb" style="margin-top:10px;">
+        <h3>DQ Run Summary Table</h3>
+        <ul>
+          <li>Conflict rates per field, per run</li>
+          <li>Clean vs conflicted row counts</li>
+          <li>Test pass/fail history</li>
+          <li>Sourced into Power BI DQ Monitor page</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card cr">
+        <h3>Without Observability</h3>
+        <ul>
+          <li>Silent failures go undetected</li>
+          <li>Duplicate analytics from re-runs</li>
+          <li>No lineage traceability</li>
+          <li>No governance evidence</li>
+          <li><em>Trust erosion</em> — business stops believing the numbers</li>
+        </ul>
+      </div>
+      <div class="card cgr" style="margin-top:10px;">
+        <h3>With Observability</h3>
+        <ul>
+          <li>✔ Safe pipeline re-runs (idempotent)</li>
+          <li>✔ Historical audit trail</li>
+          <li>✔ Governance-ready</li>
+          <li>✔ Stakeholder trust maintained</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+<section data-background-color="#0e0e0e">
+  <div class="ghost">11</div>
+  <div class="lbl">Business Value · Data Translation</div>
+  <h2>KEY <span style="color:var(--gold)">INSIGHTS</span></h2>
+  <div class="g2" style="margin-top:10px;">
+    <div class="card cg">
+      <span style="font-size:.46em;letter-spacing:3px;text-transform:uppercase;color:var(--m);">01 · Conversion Rate</span>
+      <div class="sv" style="font-size:1.8em;margin:3px 0;">35.45% — 2× Industry Avg</div>
+      <ul>
+        <li>Stable across all 20 seasons — not random variance</li>
+        <li>High-volume years = same efficiency, more shots</li>
+        <li>Shot selection is disciplined — quality over quantity</li>
+      </ul>
+    </div>
+    <div class="card cg">
+      <span style="font-size:.46em;letter-spacing:3px;text-transform:uppercase;color:var(--m);">02 · Power vs Accuracy Tradeoff</span>
+      <div class="sv" style="font-size:1.8em;margin:3px 0;">Placement Wins</div>
+      <ul>
+        <li>Best conversion: 9–40 unit distance range</li>
+        <li>High power + long range = low conversion density</li>
+        <li>"Higher power correlates with lower accuracy"</li>
+        <li>Precision finisher, not a long-range specialist</li>
+      </ul>
+    </div>
+    <div class="card cg">
+      <span style="font-size:.46em;letter-spacing:3px;text-transform:uppercase;color:var(--m);">03 · Late-Game Composure</span>
+      <div class="sv" style="font-size:1.8em;margin:3px 0;">46–75 min Peak</div>
+      <ul>
+        <li>Peak output when defensive lines drop</li>
+        <li>90+ goals = elite endurance outlier</li>
+        <li>Knockout: more evenly distributed — tactical discipline</li>
+        <li>Data supports: deploy as a late-game impact player</li>
+      </ul>
+    </div>
+    <div class="card cg">
+      <span style="font-size:.46em;letter-spacing:3px;text-transform:uppercase;color:var(--m);">04 · Pressure Performance</span>
+      <div class="sv" style="font-size:1.8em;margin:3px 0;">No Home/Away Drop</div>
+      <ul>
+        <li>Shot distribution identical H vs A</li>
+        <li>Conversion holds in hostile away environments</li>
+        <li>Knockout efficiency — fewer shots, maintained rate</li>
+        <li>Psychological resilience visible in the data</li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section data-background-color="#070707">
+  <div class="ghost">12</div>
+  <div class="lbl">Beyond Requirements · Differentiation</div>
+  <h2>VALUE <span style="color:var(--gold)">ADDITIONS</span></h2>
+  <div class="g4" style="margin-top:12px;">
+    <div class="card cp">
+      <h3>Layered Warehouse</h3>
+      <ul>
+        <li>RAW → STAGE → CLEAN → ANALYTICS</li>
+        <li>Protects raw data always</li>
+        <li>Enables reprocessing</li>
+        <li>Isolates cleaning logic</li>
+      </ul>
+      <div class="warn" style="margin-top:8px;font-size:.62em;">Alternative: single flat table<br/>→ Hard to debug, no audit separation</div>
+    </div>
+    <div class="card cp">
+      <h3>Idempotent Pipeline</h3>
+      <ul>
+        <li>Safe to re-run at any time</li>
+        <li>Without it: double-counting</li>
+        <li>Business misreporting risk</li>
+        <li><em>Trust erosion</em></li>
+      </ul>
+      <div class="good" style="margin-top:8px;font-size:.62em;">dbt incremental models handle<br/>deduplication automatically</div>
+    </div>
+    <div class="card cp">
+      <h3>dbt Version Control</h3>
+      <ul>
+        <li>All logic Git-controlled</li>
+        <li>CI/CD blocks bad deployments</li>
+        <li>Reproducibility guaranteed</li>
+        <li>Collaboration-ready</li>
+      </ul>
+      <div class="note" style="margin-top:8px;font-size:.62em;">Why not Python?<br/>No warehouse optimisation, harder governance</div>
+    </div>
+    <div class="card cp">
+      <h3>Semantic Layer</h3>
+      <ul>
+        <li>Power BI → ANALYTICS only</li>
+        <li>Zero business logic in BI tool</li>
+        <li>Single source of truth</li>
+        <li>Architectural discipline</li>
+      </ul>
+      <div class="note" style="margin-top:8px;font-size:.62em;">Swap Power BI for Tableau/Looker<br/>→ zero rework needed</div>
+    </div>
+  </div>
+</section></div><div class="bglr"></div>
+  <div class="ghost">Barath</div>
+  <div class="lbl">Case Study</div>
+  <h1>RONALDO<br/><span style="color:var(--gold)">ANALYTICS</span></h1>
+  <div class="krow">
+    <div class="ki"><div class="sv">29K</div><span class="sl">Shot Events</span></div>
+    <div class="ki"><div class="sv">10K</div><span class="sl">Goals</span></div>
+    <div class="ki"><div class="sv">35.45%</div><span class="sl">Conversion Rate</span></div>
+    <div class="ki"><div class="sv">33.72</div><span class="sl">Avg Shot Distance</span></div>
+    <div class="ki"><div class="sv">20yr</div><span class="sl">Career Span</span></div>
+  </div>
+  <div class="pills">
+    <span class="pill">Azure Data Factory</span>
+    <span class="pill">Snowflake</span>
+    <span class="pill">dbt Cloud</span>
+    <span class="pill">Power BI</span>
+    <span class="pill">Azure Pipelines CI/CD</span>
+    <span class="pill">GitHub</span>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     S2 · ARCHITECTURE — ELT DESIGN
+══════════════════════════════════════════ -->
+<section data-background-color="#0e0e0e">
+  <div class="ghost">02</div>
+  <div class="lbl">Engineering Design</div>
+  <h2>MODERN <span style="color:var(--gold)">ELT ARCHITECTURE</span></h2>
+
+  <div class="flow">
+    <div class="fn"><span class="fi">📁</span><div class="fname">Local CSV</div><div class="fdesc">Source data<br/>1996–2016</div></div>
+    <div class="farr">→</div>
+    <div class="fn"><span class="fi">☁️</span><div class="fname">ADF</div><div class="fdesc">Orchestration<br/>&amp; ingestion</div></div>
+    <div class="farr">→</div>
+    <div class="fn"><span class="fi">❄️</span><div class="fname">Snowflake RAW</div><div class="fdesc">Exact copy<br/>never modified</div></div>
+    <div class="farr">→</div>
+    <div class="fn"><span class="fi">🔧</span><div class="fname">dbt</div><div class="fdesc">CLEAN +<br/>ANALYTICS</div></div>
+    <div class="farr">→</div>
+    <div class="fn"><span class="fi">📊</span><div class="fname">Power BI</div><div class="fdesc">ANALYTICS<br/>schema only</div></div>
+  </div>
+
+  <div class="g2" style="margin-top:12px;">
+    <table class="tbl">
+      <tr><th>Layer</th><th>Responsibility</th></tr>
+      <tr><td><strong>Azure Data Factory</strong></td><td>Controlled ingestion + monitoring</td></tr>
+      <tr><td><strong>Snowflake</strong></td><td>Storage + compute separation</td></tr>
+      <tr><td><strong>dbt</strong></td><td>Transformation &amp; data quality</td></tr>
+      <tr><td><strong>Power BI</strong></td><td>Business consumption only</td></tr>
+    </table>
+    <div>
+      <div class="card cr" style="margin-bottom:10px;">
+        <h10>Why NOT transform in Snowflake?</h10>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     S3 · DATA PROFILING & GRAIN
+══════════════════════════════════════════ -->
+<section data-background-color="#070707">
+  <div class="ghost">03</div>
+  <div class="lbl">Data Understanding</div>
+  <h2>DATA PROFILING <span style="color:var(--gold)">&amp; GRAIN</span></h2>
+
+  <div class="g3" style="margin-top:12px;">
+    <div class="card cg">
+      <h3>Dataset Grain</h3>
+      <ul>
+        <li><strong>1 row = 1 shot event</strong></li>
+        <li>Business keys: <code>match_id</code>, <code>shot_id</code></li>
+        <li>Composite key where shot_id absent</li>
+        <li>Granularity confirmed before modeling</li>
+      </ul>
+    </div>
+    <div class="card cgr">
+      <h3>✓ Included Fields</h3>
+      <ul>
+        <li><code>match_id</code> · <code>minute</code> · <code>second</code></li>
+        <li><code>is_goal</code> — outcome flag</li>
+        <li><code>shot_type</code> · <code>shot_power</code></li>
+        <li><code>shot_distance</code></li>
+        <li><code>competition_type</code> (league / knockout)</li>
+        <li><em>Analytically actionable fields only</em></li>
+      </ul>
+    </div>
+    <div class="card cr">
+      <h3>✗ Excluded Fields</h3>
+      <ul>
+        <li>Free-text commentary columns</li>
+        <li>Duplicate ingestion metadata</li>
+        <li>Columns with &gt;80% nulls</li>
+        <li>Non-analytic attributes</li>
+        <li><em>"Lean analytics layer" principle</em></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-top:11px;">
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     S4 · 4-SCHEMA DBT MODEL
+══════════════════════════════════════════ -->
+<section data-background-color="#0e0e0e">
+  <div class="ghost">04</div>
+  <div class="lbl">dbt Cloud · Layered Warehouse Design</div>
+  <h2>4-SCHEMA <span style="color:var(--gold)">MODEL DESIGN</span></h2>
+
+  <div class="schema-strip">
+    <div class="sc">
+      <div class="sc-tag">Schema 1</div>
+      <div class="sc-name">RAW</div>
+      <div class="sc-sub">Exact source mirror.<br/>Never modified.</div>
+    </div>
+    <div class="sc-arr">→</div>
+    <div class="sc hi">
+      <div class="sc-tag">Schema 2</div>
+      <div class="sc-name">STAGE</div>
+      <div class="sc-sub">Structure cleaned.<br/>No logic yet.</div>
+    </div>
+    <div class="sc-arr">→</div>
+    <div class="sc">
+      <div class="sc-tag">Schema 3</div>
+      <div class="sc-name">CLEAN</div>
+      <div class="sc-sub">Business logic.<br/>Conflicts resolved.</div>
+    </div>
+    <div class="sc-arr">→</div>
+    <div class="sc hi">
+      <div class="sc-tag">Schema 4</div>
+      <div class="sc-name">ANALYTICS</div>
+      <div class="sc-sub">Aggregated.<br/>Power BI-ready.</div>
+    </div>
+  </div>
+
+  <div class="g3" style="margin-top:11px;">
+    <div class="note" style="margin-top:0;">✔ <strong>Protect raw data</strong> — always reprocessable from source</div>
+    <div class="note" style="margin-top:0;">✔ <strong>Isolate cleaning logic</strong> — debug one layer at a time</div>
+    <div class="note" style="margin-top:0;">✔ <strong>Semantic discipline</strong> — Power BI hits ANALYTICS only, no business logic inside BI tool</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     S5 · DATA QUALITY ISSUES
+══════════════════════════════════════════ -->
+<section data-background-color="#070707">
+  <div class="ghost">05</div>
+  <div class="lbl">Data Quality — Production Thinking</div>
+  <h2>DQ ISSUES <span style="color:var(--gold)">FOUND &amp; HANDLED</span></h2>
+
+  <div class="g2" style="margin-top:10px;">
+    <div>
+      <div class="card cr">
+        <h3>Issues Identified</h3>
+        <ul>
+          <li>Duplicate shots across ingestion batches</li>
+          <li>Invalid minute/second combinations</li>
+          <li>Distance measurement inconsistencies (units)</li>
+          <li>Shot power scale conflicts</li>
+          <li>Null match references</li>
+          <li>Knockout flag ambiguity (~18.54% conflict rate)</li>
+        </ul>
+      </div>
+      <div class="g3" style="margin-top:10px;">
+        <div class="card cb" style="padding:12px;">
+          <div class="sv b" style="font-size:1.9em;">153,485</div>
+          <span class="sl">Total RAW Rows</span>
+        </div>
+        <div class="card cg" style="padding:12px;">
+          <div class="sv g" style="font-size:1.9em;">29,134</div>
+          <span class="sl">Clean Rows</span>
+        </div>
+        <div class="card cr" style="padding:12px;">
+          <div class="sv r" style="font-size:1.9em;">7,815</div>
+          <span class="sl">Null Key Rejected</span>
+        </div>
+      </div>
+      <div class="note" style="margin-top:8px;font-size:.62em;line-height:1.7;">
+        <strong>Why 29K clean rows?</strong> &nbsp;
+        153,485 RAW → minus 7,815 null <code>shot_id_number</code> rows = <strong>145,670 key-valid</strong>.
+        Each unique <code>(match_id, shot_id_number)</code> appears exactly <strong>5× in RAW</strong> (avg &amp; max = 5) — a systematic ingestion repeat across batches.
+        <code>QUALIFY ROW_NUMBER() = 1</code> deduplicates: 145,670 ÷ 5 = <strong>29,134 clean rows</strong>. No business data lost — pure structural deduplication.
+      </div>
+    </div>
+    <!-- <div>
+      <table class="tbl">
+        <tr><th>Issue</th><th>Handling Strategy</th></tr>
+        <tr><td>Duplicates</td><td><span class="badge badge-g">dbt incremental + unique key</span></td></tr>
+        <tr><td>Invalid minutes</td><td><span class="badge badge-y">Filtered in CLEAN layer</span></td></tr>
+        <tr><td>Distance outliers</td><td><span class="badge badge-y">Flagged, not removed</span></td></tr>
+        <tr><td>Nulls</td><td><span class="badge badge-g">dbt not_null tests</span></td></tr>
+        <tr><td>Referential issues</td><td><span class="badge badge-g">relationships tests</span></td></tr>
+        <tr><td>Knockout conflicts</td><td><span class="badge badge-y">Boolean flag column</span></td></tr>
+      </table>
+    </div> -->
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     S6 · OBSERVABILITY & IDEMPOTENCY
+══════════════════════════════════════════ -->
+<section data-background-color="#0e0e0e">
+  <div class="ghost">06</div>
+  <div class="lbl">Production Engineering · Enterprise Thinking</div>
+  <h2>OBSERVABILITY <span style="color:var(--gold)">&amp; IDEMPOTENCY</span></h2>
+
+  <div class="g2" style="margin-top:12px;">
+    <div>
+      <div class="card cb">
+        <h3>Load Audit Table</h3>
+        <p style="font-size:.65em;color:var(--m);margin-bottom:8px;">Tracks every pipeline execution:</p>
+        <ul>
+          <li><code>pipeline_run_id</code></li>
+          <li><code>file_name</code></li>
+          <li><code>raw_row_count</code></li>
+          <li><code>clean_row_count</code></li>
+          <li><code>status</code> (pass / fail / partial)</li>
+        </ul>
+      </div>
+      <div class="card cb" style="margin-top:10px;">
+        <h3>DQ Run Summary Table</h3>
+        <ul>
+          <li>Conflict rates per field, per run</li>
+          <li>Clean vs conflicted row counts</li>
+          <li>Test pass/fail history</li>
+          <li>Sourced into Power BI DQ Monitor page</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card cr">
+        <h3>Without Observability</h3>
+        <ul>
+          <li>Silent failures go undetected</li>
+          <li>Duplicate analytics from re-runs</li>
+          <li>No lineage traceability</li>
+          <li>No governance evidence</li>
+          <li><em>Trust erosion</em> — business stops believing the numbers</li>
+        </ul>
+      </div>
+      <div class="card cgr" style="margin-top:10px;">
+        <h3>With Observability</h3>
+        <ul>
+          <li>✔ Safe pipeline re-runs (idempotent)</li>
+          <li>✔ Historical audit trail</li>
+          <li>✔ Governance-ready</li>
+          <li>✔ Stakeholder trust maintained</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ══════════════════════════════════════════
+     S7 · INSIGHTS
+══════════════════════════════════════════ -->
+<section data-background-color="#0e0e0e">
+  <div class="ghost">11</div>
+  <div class="lbl">Business Value · Data Translation</div>
+  <h2>KEY <span style="color:var(--gold)">INSIGHTS</span></h2>
+  <div class="g2" style="margin-top:10px;">
+    <div class="card cg">
+      <span style="font-size:.46em;letter-spacing:3px;text-transform:uppercase;color:var(--m);">01 · Conversion Rate</span>
+      <div class="sv" style="font-size:1.8em;margin:3px 0;">35.45% — 2× Industry Avg</div>
+      <ul>
+        <li>Stable across all 20 seasons — not random variance</li>
+        <li>High-volume years = same efficiency, more shots</li>
+        <li>Shot selection is disciplined — quality over quantity</li>
+      </ul>
+    </div>
+    <div class="card cg">
+      <span style="font-size:.46em;letter-spacing:3px;text-transform:uppercase;color:var(--m);">02 · Power vs Accuracy Tradeoff</span>
+      <div class="sv" style="font-size:1.8em;margin:3px 0;">Placement Wins</div>
+      <ul>
+        <li>Best conversion: 9–40 unit distance range</li>
+        <li>High power + long range = low conversion density</li>
+        <li>"Higher power correlates with lower accuracy"</li>
+        <li>Precision finisher, not a long-range specialist</li>
+      </ul>
+    </div>
+    <div class="card cg">
+      <span style="font-size:.46em;letter-spacing:3px;text-transform:uppercase;color:var(--m);">03 · Late-Game Composure</span>
+      <div class="sv" style="font-size:1.8em;margin:3px 0;">46–75 min Peak</div>
+      <ul>
+        <li>Peak output when defensive lines drop</li>
+        <li>90+ goals = elite endurance outlier</li>
+        <li>Knockout: more evenly distributed — tactical discipline</li>
+        <li>Data supports: deploy as a late-game impact player</li>
+      </ul>
+    </div>
+    <div class="card cg">
+      <span style="font-size:.46em;letter-spacing:3px;text-transform:uppercase;color:var(--m);">04 · Pressure Performance</span>
+      <div class="sv" style="font-size:1.8em;margin:3px 0;">No Home/Away Drop</div>
+      <ul>
+        <li>Shot distribution identical H vs A</li>
+        <li>Conversion holds in hostile away environments</li>
+        <li>Knockout efficiency — fewer shots, maintained rate</li>
+        <li>Psychological resilience visible in the data</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     S8 · VALUE ADDITIONS
+══════════════════════════════════════════ -->
+<section data-background-color="#070707">
+  <div class="ghost">12</div>
+  <div class="lbl">Beyond Requirements · Differentiation</div>
+  <h2>VALUE <span style="color:var(--gold)">ADDITIONS</span></h2>
+  <div class="g4" style="margin-top:12px;">
+    <div class="card cp">
+      <h3>Layered Warehouse</h3>
+      <ul>
+        <li>RAW → STAGE → CLEAN → ANALYTICS</li>
+        <li>Protects raw data always</li>
+        <li>Enables reprocessing</li>
+        <li>Isolates cleaning logic</li>
+      </ul>
+      <div class="warn" style="margin-top:8px;font-size:.62em;">Alternative: single flat table<br/>→ Hard to debug, no audit separation</div>
+    </div>
+    <div class="card cp">
+      <h3>Idempotent Pipeline</h3>
+      <ul>
+        <li>Safe to re-run at any time</li>
+        <li>Without it: double-counting</li>
+        <li>Business misreporting risk</li>
+        <li><em>Trust erosion</em></li>
+      </ul>
+      <div class="good" style="margin-top:8px;font-size:.62em;">dbt incremental models handle<br/>deduplication automatically</div>
+    </div>
+    <div class="card cp">
+      <h3>dbt Version Control</h3>
+      <ul>
+        <li>All logic Git-controlled</li>
+        <li>CI/CD blocks bad deployments</li>
+        <li>Reproducibility guaranteed</li>
+        <li>Collaboration-ready</li>
+      </ul>
+      <div class="note" style="margin-top:8px;font-size:.62em;">Why not Python?<br/>No warehouse optimisation, harder governance</div>
+    </div>
+    <div class="card cp">
+      <h3>Semantic Layer</h3>
+      <ul>
+        <li>Power BI → ANALYTICS only</li>
+        <li>Zero business logic in BI tool</li>
+        <li>Single source of truth</li>
+        <li>Architectural discipline</li>
+      </ul>
+      <div class="note" style="margin-top:8px;font-size:.62em;">Swap Power BI for Tableau/Looker<br/>→ zero rework needed</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     S9 · LIMITATIONS & CONFIDENCE
+══════════════════════════════════════════ -->
+<section data-background-color="#0e0e0e">
+  <div class="ghost">13</div>
+  <div class="lbl">Senior Engineering Thinking</div>
+  <h2>LIMITATIONS <span style="color:var(--gold)">&amp; CONFIDENCE</span></h2>
+  <div class="g2" style="margin-top:12px;">
+    <div>
+      <div class="card cr">
+        <h3>Dataset Limitations</h3>
+        <ul>
+          <li>Single player — no peer benchmarking</li>
+          <li>No xG (expected goals) metric available</li>
+          <li>No defensive/tactical context</li>
+          <li>Free kick vs open play not distinguished</li>
+          <li>No opponent-level data</li>
+          <li>Pre-1996 career not covered</li>
+        </ul>
+      </div>
+      <div class="card cr" style="margin-top:10px;">
+        <h3>Data Quality Caveats</h3>
+        <ul>
+          <li>~18% conflict rate on 3 key fields</li>
+          <li>Distance/power excluded from precision KPIs</li>
+          <li>Knockout classification ambiguity remains</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card cgr">
+        <h3>Confidence Assessment</h3>
+        <ul style="line-height:2.1;">
+          <li>✔ <strong>High confidence</strong> — structural correctness</li>
+          <li>✔ <strong>High confidence</strong> — volume-based metrics</li>
+          <li>△ <strong>Moderate confidence</strong> — distance precision</li>
+          <li>△ <strong>Moderate confidence</strong> — contextual completeness</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     S10 · Q&A
+══════════════════════════════════════════ -->
+<section data-background-color="#070707">
+  <div class="bglb"></div>
+  <div class="ghost">Q&A</div>
+  <div style="text-align:center;max-width:660px;margin:0 auto;">
+    <div class="lbl" style="justify-content:center;margin-bottom:11px;">Thank You</div>
+    <h1>READY FOR<br/><span style="color:var(--gold)">Q&amp;A</span></h1>
+    <p style="text-align:center;max-width:440px;margin:10px auto;font-size:.72em;">Full pipeline on GitHub — dbt models, Snowflake schemas, Azure pipeline config, Power BI .pbix — all available for deep-dive.</p>
+    <div style="display:inline-block;margin-top:16px;font-family:'Bebas Neue',sans-serif;font-size:1.2em;letter-spacing:6px;color:var(--gold);border:1px solid rgba(201,168,76,.4);padding:9px 40px;">OPEN FOR QUESTIONS</div>
+    <div class="cstats">
+      <div class="cs"><div class="sv" style="font-size:1.6em;">29K</div><span class="sl">Shot Events</span></div>
+      <div class="cs"><div class="sv" style="font-size:1.6em;">4</div><span class="sl">Schemas</span></div>
+      <div class="cs"><div class="sv" style="font-size:1.6em;">4</div><span class="sl">Dashboard Pages</span></div>
+      <div class="cs"><div class="sv" style="font-size:1.6em;">0</div><span class="sl">Rows Rejected</span></div>
+      <div class="cs"><div class="sv" style="font-size:1.6em;">35.5%</div><span class="sl">Conversion</span></div>
+      <div class="cs"><div class="sv" style="font-size:1.6em;">20yr</div><span class="sl">Career</span></div>
+    </div>
+  </div>
+</section>
+
+</div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reveal.min.js"></script>
+<script>
+Reveal.initialize({
+  hash:true,slideNumber:"c/t",progress:true,controls:true,
+  controlsTutorial:false,transition:"fade",transitionSpeed:"slow",
+  backgroundTransition:"fade",width:1280,height:720,
+  margin:.03,minScale:.15,maxScale:2,center:false,keyboard:true
+});
+</script>
+</body></html>
