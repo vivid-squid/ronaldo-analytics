@@ -12,6 +12,7 @@ with src as (
   {% endif %}
 ),
 
+--quality gate
 keyed as (
     select *
     from src
